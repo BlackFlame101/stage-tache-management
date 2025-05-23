@@ -1,0 +1,20 @@
+.filterControlsContainer {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filterSelect {
+  width: 100%; 
+}
+
+@media (min-width: 500px) { 
+  .filterSelect {
+    max-width: 320px; 
+  }
+}
