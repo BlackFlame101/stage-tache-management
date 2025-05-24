@@ -32,7 +32,6 @@ export const Modal: React.FC<ModalProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscapeKey);
-      
       modalRef.current?.focus();
     }
 
@@ -48,7 +47,6 @@ export const Modal: React.FC<ModalProps> = ({
     } else {
       document.body.style.overflow = 'unset';
     }
-    
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -56,12 +54,11 @@ export const Modal: React.FC<ModalProps> = ({
 
 
   if (!isOpen) {
-    return null; 
+    return null;
   }
 
-  
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) { 
+    if (event.target === event.currentTarget) {
       onClose();
     }
   };
@@ -78,8 +75,8 @@ export const Modal: React.FC<ModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
-      tabIndex={-1} 
-      ref={modalRef} 
+      tabIndex={-1}
+      ref={modalRef}
     >
       <div className={modalPanelClasses}>
         <div className={styles.modalHeader}>
@@ -88,9 +85,9 @@ export const Modal: React.FC<ModalProps> = ({
             type="button"
             className={styles.closeButton}
             onClick={onClose}
-            aria-label="Fermer la modale" 
+            aria-label="Fermer la modale"
           >
-            <X size={22} /> {}
+            <X size={22} />
           </button>
         </div>
         <div className={styles.modalContent}>

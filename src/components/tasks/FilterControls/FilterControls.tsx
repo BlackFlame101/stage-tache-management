@@ -31,6 +31,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
         value={currentFilter}
         onChange={handleSelectChange}
         id="status-filter"
+        className={styles.filterSelect}
       />
     </div>
   );

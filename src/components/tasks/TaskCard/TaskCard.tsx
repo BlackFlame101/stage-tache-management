@@ -5,7 +5,7 @@ import { Task, TaskStatus } from '@/models/task.model';
 import { Card } from '@/components/ui/Card/Card'; 
 import { Button } from '@/components/ui/Button/Button';
 import { Select, SelectOption } from '@/components/ui/Select/Select';
-import { Edit3, Trash2, CalendarDays, Info, Zap } from 'lucide-react'; 
+import { Edit3, Trash2, CalendarDays, Info } from 'lucide-react';
 import styles from './TaskCard.module.css';
 
 interface TaskCardProps {
@@ -14,6 +14,7 @@ interface TaskCardProps {
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
 }
+
 
 const getStatusThemeClass = (status: TaskStatus) => {
   switch (status) {
@@ -36,11 +37,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const { id, title, description, dueDate, status } = task;
 
-  
   let formattedDueDate = "Date non spécifiée";
   try {
     if (dueDate) {
-      formattedDueDate = format(new Date(dueDate), 'PPP', { locale: fr });
+      
+      const date = new Date(dueDate + 'T00:00:00Z'); 
+      formattedDueDate = format(date, 'PPP', { locale: fr });
     }
   } catch (error) {
     console.warn(`Invalid date format for task "${title}": ${dueDate}`);
@@ -57,7 +59,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   };
 
   return (
-    
     <Card className={`${styles.taskCardInstance} ${getStatusThemeClass(status)}`}>
       <div className={styles.cardContent}>
         <div className={styles.cardHeader}>
@@ -87,7 +88,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             options={statusOptions}
             value={status}
             onChange={handleLocalStatusChange}
-            id={`status-select-${id}`} 
+            id={`status-select-${id}`}
             aria-label={`Changer le statut de la tâche ${title}`}
           />
         </div>
@@ -105,7 +106,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           Modifier
         </Button>
         <Button
-          variant="danger" 
+          variant="danger"
           size="small"
           onClick={() => onDelete(id)}
           aria-label={`Supprimer la tâche ${title}`}

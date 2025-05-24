@@ -10,11 +10,11 @@
 }
 
 .filterSelect {
-  width: 100%; 
+  width: 100%;
 }
 
-@media (min-width: 500px) { 
+@media (min-width: 500px) {
   .filterSelect {
-    max-width: 320px; 
+    max-width: 320px;
   }
 }

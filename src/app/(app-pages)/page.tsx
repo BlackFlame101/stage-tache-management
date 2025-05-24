@@ -1,15 +1,16 @@
-'use client'; 
+'use client';
 
-import React, { useEffect, useState, useMemo } from 'react'; 
-import { useTaskStore } from '@/contexts/taskStore'; 
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTaskStore } from '@/contexts/taskStore';
 import { Task } from '@/models/task.model';
 import { TaskList } from '@/components/tasks/TaskList/TaskList';
 import { TaskForm, TaskFormData } from '@/components/tasks/TaskForm/TaskForm';
 import { FilterControls } from '@/components/tasks/FilterControls/FilterControls';
 import { Button } from '@/components/ui/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { PaginationControls } from '@/components/ui/PaginationControls/PaginationControls'; 
 import { PlusCircle } from 'lucide-react';
-import styles from './page.module.css'; 
+import styles from './page.module.css';
 
 export default function HomePage() {
   
@@ -20,32 +21,31 @@ export default function HomePage() {
   const setFilter = useTaskStore((state) => state.setFilter);
   const isLoading = useTaskStore((state) => state.isLoading);
   const error = useTaskStore((state) => state.error);
-  const allTasks = useTaskStore((state) => state.tasks); 
+  const allTasksFromStore = useTaskStore((state) => state.tasks); 
   const currentFilter = useTaskStore((state) => state.currentFilter);
-
+  const currentPage = useTaskStore((state) => state.currentPage);
+  const totalPages = useTaskStore((state) => state.totalPages);
+  const goToPage = useTaskStore((state) => state.goToPage);
+  const totalTasksInStore = useTaskStore((state) => state.totalTasks); 
   
-  const filteredTasks = useMemo(() => {
+  const tasksToDisplay = useMemo(() => {
+    
     if (currentFilter === 'all') {
-      return allTasks;
+      return allTasksFromStore;
     }
-    return allTasks.filter(task => task.status === currentFilter);
-  }, [allTasks, currentFilter]);
-
-
+    return allTasksFromStore.filter(task => task.status === currentFilter);
+  }, [allTasksFromStore, currentFilter]);
   
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
-
-
   
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]); 
+  }, [fetchTasks]);
 
-  
   const openAddTaskModal = () => {
-    setEditingTask(undefined); 
+    setEditingTask(undefined);
     setIsTaskModalOpen(true);
   };
 
@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const closeModal = () => {
     setIsTaskModalOpen(false);
-    setEditingTask(undefined); 
+    setEditingTask(undefined);
   };
 
   const openDeleteConfirmModal = (taskId: string) => {
@@ -66,7 +66,6 @@ export default function HomePage() {
   const closeDeleteConfirmModal = () => {
     setTaskToDelete(null);
   };
-
   
   const handleAddTaskSubmit = async (data: TaskFormData) => {
     const taskDataForApi = {
@@ -74,59 +73,66 @@ export default function HomePage() {
         description: data.description,
         dueDate: data.dueDate,
     };
-    await addTask(taskDataForApi);
-    closeModal(); 
+    await addTask(taskDataForApi); 
+    closeModal();
   };
 
   const handleEditTaskSubmit = async (data: TaskFormData) => {
     if (editingTask) {
-      
-      await updateTask(editingTask.id, data);
-      closeModal(); 
+      await updateTask(editingTask.id, data); 
+      closeModal();
     }
   };
 
-  
   const confirmDeleteTask = async () => {
     if (taskToDelete) {
-      await deleteTask(taskToDelete);
+      await deleteTask(taskToDelete); 
       closeDeleteConfirmModal();
     }
   };
 
-  
   const handleStatusChange = async (taskId: string, newStatus: Task['status']) => {
-    await updateTask(taskId, { status: newStatus });
+    await updateTask(taskId, { status: newStatus }); 
+  };
+
+  const handlePageChange = (page: number) => {
+    goToPage(page); 
   };
 
   return (
-    <div className={styles.homePageWrapper}> {}
-      <header className={styles.pageHeader}> {}
+    <div className={styles.homePageWrapper}>
+      <header className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Liste des Tâches</h1>
         <Button
           variant="primary"
           onClick={openAddTaskModal}
           leftIcon={<PlusCircle size={20} />}
+          className={styles.addTaskButton}
         >
           Ajouter une tâche
         </Button>
       </header>
-
       <FilterControls
         currentFilter={currentFilter}
-        onFilterChange={setFilter}
+        onFilterChange={(newFilter) => {
+          setFilter(newFilter); 
+        }}
       />
-
       <TaskList
-        tasks={filteredTasks} 
+        tasks={tasksToDisplay}
         onEditTask={openEditTaskModal}
-        onDeleteTask={openDeleteConfirmModal} 
+        onDeleteTask={openDeleteConfirmModal}
         onStatusChange={handleStatusChange}
-        isLoading={isLoading && allTasks.length === 0 && currentFilter === 'all'} 
+        
+        isLoading={isLoading && (totalTasksInStore === 0 && currentFilter === 'all' && currentPage === 1)}
         error={error}
       />
-
-      {}
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        isLoading={isLoading}
+      />
       <Modal
         isOpen={isTaskModalOpen}
         onClose={closeModal}
@@ -138,11 +144,9 @@ export default function HomePage() {
           onCancel={closeModal}
           initialData={editingTask}
           isEditing={!!editingTask}
-          isLoading={isLoading} 
+          isLoading={isLoading}
         />
       </Modal>
-
-      {}
       {taskToDelete && (
         <Modal
             isOpen={!!taskToDelete}
